@@ -1,0 +1,48 @@
+openapi: 3.0.3
+info:
+  title: User Service
+  version: v1
+servers:
+  - url: https://dev.api.rexvit.local/user-service/v1
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      summary: List users
+      tags:
+        - Users
+    post:
+      operationId: createUser
+      summary: Create user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              name: Ada Lovelace
+              email: ada@rexvit.local
+              role: admin
+  /users/{userId}:
+    get:
+      operationId: getUser
+      summary: Get user
+      tags:
+        - Users
+    patch:
+      operationId: updateUser
+      summary: Update user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              role: member
+    delete:
+      operationId: deleteUser
+      summary: Delete user
+      tags:
+        - Users

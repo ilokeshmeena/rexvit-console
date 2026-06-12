@@ -1,0 +1,40 @@
+openapi: 3.0.3
+info:
+  title: User Service
+  version: v2
+servers:
+  - url: https://dev.api.rexvit.local/user-service/v2
+paths:
+  /users:
+    get:
+      operationId: listUsersV2
+      summary: List users with profile data
+      tags:
+        - Users
+    post:
+      operationId: createUserV2
+      summary: Create user with preferences
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              profile:
+                name: Grace Hopper
+                email: grace@rexvit.local
+              preferences:
+                timezone: Asia/Kolkata
+                notifications: true
+  /users/{userId}/sessions:
+    get:
+      operationId: listUserSessions
+      summary: List user sessions
+      tags:
+        - Sessions
+    delete:
+      operationId: revokeUserSessions
+      summary: Revoke all sessions
+      tags:
+        - Sessions

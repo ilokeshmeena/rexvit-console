@@ -1,0 +1,50 @@
+openapi: 3.0.3
+info:
+  title: Order Service
+  version: v1
+servers:
+  - url: https://dev.api.rexvit.local/order-service/v1
+paths:
+  /orders:
+    get:
+      operationId: listOrders
+      summary: List orders
+      tags:
+        - Orders
+    post:
+      operationId: createOrder
+      summary: Create order
+      tags:
+        - Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              customerId: usr_123
+              items:
+                - sku: VIT-D3
+                  quantity: 2
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      summary: Get order
+      tags:
+        - Orders
+    put:
+      operationId: replaceOrder
+      summary: Replace order
+      tags:
+        - Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              status: confirmed
+              notes: Priority handling
+    delete:
+      operationId: cancelOrder
+      summary: Cancel order
+      tags:
+        - Orders

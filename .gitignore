@@ -1,0 +1,62 @@
+# Node
+node_modules/
+**/node_modules/
+
+# Build
+dist/
+build/
+target/
+out/
+**/dist/
+**/build/
+
+# Coverage
+coverage/
+
+# Env
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# Mac
+.DS_Store
+
+# Logs
+*.log
+
+# TypeScript
+*.tsbuildinfo
+
+# Temporary
+*.tmp
+*.cache
+*.bak
+*.swp
+*.swo
+
+# Archives
+*.zip
+*.tar.gz
+*.tgz
+
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Keys
+*.pem
+*.key
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3

@@ -1,0 +1,572 @@
+openapi: 3.0.3
+
+info:
+  title: Sample Order Management API
+  description: API specification for testing environment switching and request execution.
+  version: 1.1.0
+
+servers:
+  - url: http://localhost:3000
+    description: Development
+
+  - url: https://api-staging.example.com
+    description: Staging
+
+  - url: https://api-acceptance.example.com
+    description: Acceptance (UAT)
+
+  - url: https://api.example.com
+    description: Production
+
+tags:
+  - name: Authentication
+  - name: Users
+  - name: Products
+  - name: Orders
+  - name: System
+
+paths:
+
+  /health:
+    get:
+      tags:
+        - System
+      summary: Health Check
+      responses:
+        "200":
+          description: Service is healthy
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      parameters:
+        - name: tenantId
+          in: header
+          required: true
+          schema:
+            type: string
+          example: tenant-001
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  example: Password123
+
+      responses:
+        "200":
+          description: Login successful
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+
+      responses:
+        "200":
+          description: Token refreshed
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout user
+      security:
+        - bearerAuth: []
+
+      responses:
+        "204":
+          description: Logged out
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get users
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: tenantId
+          in: header
+          required: true
+          schema:
+            type: string
+
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+
+      responses:
+        "200":
+          description: User list
+
+    post:
+      tags:
+        - Users
+      summary: Create user
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: tenantId
+          in: header
+          required: true
+          schema:
+            type: string
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - email
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+
+      responses:
+        "201":
+          description: User created
+
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get user by ID
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: User details
+
+    put:
+      tags:
+        - Users
+      summary: Update user
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                phone:
+                  type: string
+
+      responses:
+        "200":
+          description: User updated
+
+    delete:
+      tags:
+        - Users
+      summary: Delete user
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "204":
+          description: User deleted
+
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Search products
+
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+
+      responses:
+        "200":
+          description: Product list
+
+    post:
+      tags:
+        - Products
+      summary: Create product
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - price
+                - stock
+              properties:
+                name:
+                  type: string
+                price:
+                  type: number
+                stock:
+                  type: integer
+                category:
+                  type: string
+
+      responses:
+        "201":
+          description: Product created
+
+  /products/{productId}:
+    get:
+      tags:
+        - Products
+      summary: Get product details
+
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: Product details
+
+    put:
+      tags:
+        - Products
+      summary: Update product
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+
+      responses:
+        "200":
+          description: Product updated
+
+    delete:
+      tags:
+        - Products
+      summary: Delete product
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "204":
+          description: Product deleted
+
+  /orders:
+    get:
+      tags:
+        - Orders
+      summary: Get orders
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: customerId
+          in: query
+          schema:
+            type: integer
+
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - PENDING
+              - PROCESSING
+              - SHIPPED
+              - DELIVERED
+              - CANCELLED
+
+      responses:
+        "200":
+          description: Order list
+
+    post:
+      tags:
+        - Orders
+      summary: Create order
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customerId
+                - items
+              properties:
+                customerId:
+                  type: integer
+
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - productId
+                      - quantity
+                    properties:
+                      productId:
+                        type: integer
+                      quantity:
+                        type: integer
+
+                shippingAddress:
+                  type: string
+
+      responses:
+        "201":
+          description: Order created
+
+  /orders/{orderId}:
+    get:
+      tags:
+        - Orders
+      summary: Get order details
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: Order details
+
+  /orders/{orderId}/status:
+    patch:
+      tags:
+        - Orders
+      summary: Update order status
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - PROCESSING
+                    - SHIPPED
+                    - DELIVERED
+                    - CANCELLED
+
+      responses:
+        "200":
+          description: Status updated
+
+  /orders/{orderId}/cancel:
+    post:
+      tags:
+        - Orders
+      summary: Cancel order
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: Order cancelled
+
+  /orders/{orderId}/payment:
+    post:
+      tags:
+        - Orders
+      summary: Process payment
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - paymentMethod
+              properties:
+                paymentMethod:
+                  type: string
+                  enum:
+                    - CARD
+                    - UPI
+                    - NETBANKING
+
+      responses:
+        "200":
+          description: Payment successful
+
+  /orders/{orderId}/tracking:
+    get:
+      tags:
+        - Orders
+      summary: Get shipment tracking
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: Tracking details
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
