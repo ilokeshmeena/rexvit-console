@@ -17,7 +17,7 @@ export function ExecutionContext({
   serverDescription,
   resolvedUrl,
   authProfile,
-  timeoutMs
+  timeoutMs,
 }: ExecutionContextProps) {
   if (!endpoint) return null;
 
@@ -35,19 +35,27 @@ export function ExecutionContext({
           <div className="grid gap-1">
             <div>
               <span className="text-muted">Server:</span>
-              <span className="ml-2 font-medium text-foreground">{serverDescription || "Default"}</span>
+              <span className="ml-2 font-medium text-foreground">
+                {serverDescription || "Default"}
+              </span>
             </div>
             <div>
               <span className="text-muted">Resolved URL:</span>
-              <span className="ml-2 break-all font-mono text-foreground">{resolvedUrl}</span>
+              <span className="ml-2 break-all font-mono text-foreground">
+                {resolvedUrl}
+              </span>
             </div>
             <div>
               <span className="text-muted">Authentication:</span>
-              <span className="ml-2 font-medium text-foreground">{authProfile?.name || "None"}</span>
+              <span className="ml-2 font-medium text-foreground">
+                {authProfile?.name || "None"}
+              </span>
             </div>
             <div>
               <span className="text-muted">Timeout:</span>
-              <span className="ml-2 font-medium text-foreground">{timeoutMs}ms</span>
+              <span className="ml-2 font-medium text-foreground">
+                {timeoutMs}ms
+              </span>
             </div>
           </div>
         </div>

@@ -4,16 +4,23 @@ import {
   findServer,
   getDefaultServerVariables,
   getEffectiveServerUrl,
-  type ServerSelection
+  type ServerSelection,
 } from "../../openapi/serverResolver";
 
 interface ServerSelectorProps {
   servers: OpenApiServer[] | undefined;
   selection: ServerSelection;
-  onServerChange: (selection: Partial<ServerSelection>, resolvedBaseUrl: string) => void;
+  onServerChange: (
+    selection: Partial<ServerSelection>,
+    resolvedBaseUrl: string,
+  ) => void;
 }
 
-export function ServerSelector({ servers, selection, onServerChange }: ServerSelectorProps) {
+export function ServerSelector({
+  servers,
+  selection,
+  onServerChange,
+}: ServerSelectorProps) {
   if (!servers || servers.length === 0) {
     return (
       <Select className="h-8" aria-label="Server" value="" disabled>
@@ -22,7 +29,9 @@ export function ServerSelector({ servers, selection, onServerChange }: ServerSel
     );
   }
 
-  const selectedServer = selection.selectedServerUrl ? findServer(servers, selection.selectedServerUrl) : servers[0];
+  const selectedServer = selection.selectedServerUrl
+    ? findServer(servers, selection.selectedServerUrl)
+    : servers[0];
 
   return (
     <Select
@@ -30,17 +39,22 @@ export function ServerSelector({ servers, selection, onServerChange }: ServerSel
       aria-label="Server"
       value={selectedServer?.url ?? ""}
       onChange={(event) => {
-        const nextServer = servers.find((server) => server.url === event.target.value) ?? servers[0];
+        const nextServer =
+          servers.find((server) => server.url === event.target.value) ??
+          servers[0];
         const serverVariables = getDefaultServerVariables(nextServer);
-        const resolvedBaseUrl = getEffectiveServerUrl(nextServer, serverVariables);
+        const resolvedBaseUrl = getEffectiveServerUrl(
+          nextServer,
+          serverVariables,
+        );
 
         onServerChange(
           {
             selectedServerUrl: nextServer.url,
             serverVariables,
-            customOverride: undefined
+            customOverride: undefined,
           },
-          resolvedBaseUrl
+          resolvedBaseUrl,
         );
       }}
     >

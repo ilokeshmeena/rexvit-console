@@ -13,7 +13,7 @@ describe("classifyContentType", () => {
     ["audio/mpeg", "audio"],
     ["application/pdf", "pdf"],
     ["application/zip", "download"],
-    ["application/octet-stream", "download"]
+    ["application/octet-stream", "download"],
   ] as const)("classifies %s as %s", (contentType, expected) => {
     expect(classifyContentType(contentType)).toBe(expected);
   });
@@ -28,7 +28,7 @@ describe("classifyContentType", () => {
     ["audio/mpeg", "Audio Player"],
     ["application/pdf", "PDF Viewer"],
     ["application/zip", "Download"],
-    ["application/octet-stream", "Download"]
+    ["application/octet-stream", "Download"],
   ] as const)("resolves %s to %s", (contentType, label) => {
     expect(resolveResponseContent(contentType).label).toBe(label);
   });

@@ -7,7 +7,10 @@ type ServerStore = {
   selections: Map<string, ServerSelection>;
   loadSelections: () => void;
   saveSelection: (selection: ServerSelection) => void;
-  getSelection: (serviceId: string, versionId: string) => ServerSelection | undefined;
+  getSelection: (
+    serviceId: string,
+    versionId: string,
+  ) => ServerSelection | undefined;
   clearSelection: (serviceId: string, versionId: string) => void;
 };
 
@@ -21,7 +24,9 @@ export const useServerStore = create<ServerStore>((set, get) => ({
       if (!stored) return;
 
       const data = JSON.parse(stored) as ServerSelection[];
-      const map = new Map(data.map((s) => [`${s.serviceId}:${s.versionId}`, s]));
+      const map = new Map(
+        data.map((s) => [`${s.serviceId}:${s.versionId}`, s]),
+      );
       set({ selections: map });
     } catch {
       // Ignore parse errors
@@ -68,5 +73,5 @@ export const useServerStore = create<ServerStore>((set, get) => ({
 
       return { selections: newMap };
     });
-  }
+  },
 }));

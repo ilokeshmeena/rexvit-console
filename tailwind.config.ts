@@ -42,33 +42,23 @@ export default {
         // Response states
         responseSuccess: "#1E3A2F",
         responseWarning: "#3B2D12",
-        responseError: "#3D1F22"
+        responseError: "#3D1F22",
       },
 
       fontFamily: {
-        sans: [
-          "Inter",
-          "ui-sans-serif",
-          "system-ui",
-          "sans-serif"
-        ],
-        mono: [
-          "JetBrains Mono",
-          "SFMono-Regular",
-          "ui-monospace",
-          "monospace"
-        ]
+        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "SFMono-Regular", "ui-monospace", "monospace"],
       },
 
       boxShadow: {
         panel: "0 8px 24px rgba(0,0,0,0.35)",
-        focus: "0 0 0 2px rgba(255,108,55,0.25)"
+        focus: "0 0 0 2px rgba(255,108,55,0.25)",
       },
 
       borderRadius: {
-        panel: "8px"
-      }
-    }
+        panel: "8px",
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 } satisfies Config;

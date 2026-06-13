@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import type { ApiRequest, ApiResponse } from "../../shared/types/http";
-import type { AuthProfile, EnvironmentVariable, FavoriteEndpoint, RequestHistoryItem, RequestTemplate } from "../../shared/types/persistence";
+import type {
+  AuthProfile,
+  EnvironmentVariable,
+  FavoriteEndpoint,
+  RequestHistoryItem,
+  RequestTemplate,
+} from "../../shared/types/persistence";
 import type { RequestInstance } from "../runner/requestIdentity";
 import {
   clearHistory,
@@ -18,7 +24,7 @@ import {
   deleteRequestTemplate,
   getCredentialSecret,
   setCredentialSecret,
-  toggleFavorite
+  toggleFavorite,
 } from "../../services/persistenceClient";
 
 type AppDataState = {
@@ -30,7 +36,12 @@ type AppDataState = {
   selectedAuthProfileId: string | null;
   isLoaded: boolean;
   loadPersistedData: () => Promise<void>;
-  recordHistory: (input: { endpointId?: string; request: ApiRequest; response: ApiResponse; snapshot?: RequestInstance }) => Promise<void>;
+  recordHistory: (input: {
+    endpointId?: string;
+    request: ApiRequest;
+    response: ApiResponse;
+    snapshot?: RequestInstance;
+  }) => Promise<void>;
   clearRequestHistory: () => Promise<void>;
   toggleEndpointFavorite: (endpointId: string) => Promise<void>;
   isFavorite: (endpointId: string) => boolean;
@@ -54,14 +65,23 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
   selectedAuthProfileId: null,
   isLoaded: false,
   loadPersistedData: async () => {
-    const [history, favorites, variables, authProfiles, requestTemplates] = await Promise.all([
-      listHistory(),
-      listFavorites(),
-      listVariables(),
-      listAuthProfiles(),
-      listRequestTemplates()
-    ]);
-    set({ history, favorites, variables, authProfiles, requestTemplates, selectedAuthProfileId: authProfiles[0]?.id ?? null, isLoaded: true });
+    const [history, favorites, variables, authProfiles, requestTemplates] =
+      await Promise.all([
+        listHistory(),
+        listFavorites(),
+        listVariables(),
+        listAuthProfiles(),
+        listRequestTemplates(),
+      ]);
+    set({
+      history,
+      favorites,
+      variables,
+      authProfiles,
+      requestTemplates,
+      selectedAuthProfileId: authProfiles[0]?.id ?? null,
+      isLoaded: true,
+    });
   },
   recordHistory: async ({ endpointId, request, response, snapshot }) => {
     const item: RequestHistoryItem = {
@@ -80,7 +100,7 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
       durationMs: response.durationMs,
       request,
       snapshot,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
     await saveHistoryItem(item);
     set((state) => ({ history: [item, ...state.history].slice(0, 10_000) }));
@@ -93,9 +113,15 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
     const favorites = await toggleFavorite(endpointId);
     set({ favorites });
   },
-  isFavorite: (endpointId) => get().favorites.some((favorite) => favorite.endpointId === endpointId),
+  isFavorite: (endpointId) =>
+    get().favorites.some((favorite) => favorite.endpointId === endpointId),
   variablesForEnvironment: (environmentId) =>
-    get().variables.filter((variable) => variable.environmentId === environmentId && variable.enabled && variable.key.trim()),
+    get().variables.filter(
+      (variable) =>
+        variable.environmentId === environmentId &&
+        variable.enabled &&
+        variable.key.trim(),
+    ),
   upsertVariable: async (variable) => {
     const variables = await saveVariable(variable);
     set({ variables });
@@ -104,15 +130,26 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
     const variables = await deleteVariable(id);
     set({ variables });
   },
-  setSelectedAuthProfile: (selectedAuthProfileId) => set({ selectedAuthProfileId }),
+  setSelectedAuthProfile: (selectedAuthProfileId) =>
+    set({ selectedAuthProfileId }),
   upsertAuthProfile: async (profile, secret) => {
-    if (secret !== undefined) await setCredentialSecret(profile.secretRef, secret);
+    if (secret !== undefined)
+      await setCredentialSecret(profile.secretRef, secret);
     const authProfiles = await saveAuthProfile(profile);
-    set((state) => ({ authProfiles, selectedAuthProfileId: state.selectedAuthProfileId ?? profile.id }));
+    set((state) => ({
+      authProfiles,
+      selectedAuthProfileId: state.selectedAuthProfileId ?? profile.id,
+    }));
   },
   removeAuthProfile: async (id) => {
     const authProfiles = await deleteAuthProfile(id);
-    set((state) => ({ authProfiles, selectedAuthProfileId: state.selectedAuthProfileId === id ? authProfiles[0]?.id ?? null : state.selectedAuthProfileId }));
+    set((state) => ({
+      authProfiles,
+      selectedAuthProfileId:
+        state.selectedAuthProfileId === id
+          ? (authProfiles[0]?.id ?? null)
+          : state.selectedAuthProfileId,
+    }));
   },
   getAuthSecret: (secretRef) => getCredentialSecret(secretRef),
   upsertRequestTemplate: async (template) => {
@@ -122,12 +159,18 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
   removeRequestTemplate: async (id) => {
     const requestTemplates = await deleteRequestTemplate(id);
     set({ requestTemplates });
-  }
+  },
 }));
 
-export function resolveVariables(value: string, variables: EnvironmentVariable[]) {
-  return value.replace(/\{\{\s*([A-Za-z0-9_.-]+)\s*\}\}/g, (match, key: string) => {
-    const variable = variables.find((item) => item.key === key);
-    return variable?.value ?? match;
-  });
+export function resolveVariables(
+  value: string,
+  variables: EnvironmentVariable[],
+) {
+  return value.replace(
+    /\{\{\s*([A-Za-z0-9_.-]+)\s*\}\}/g,
+    (match, key: string) => {
+      const variable = variables.find((item) => item.key === key);
+      return variable?.value ?? match;
+    },
+  );
 }

@@ -1,25 +1,33 @@
 import { invokeCommand } from "../../services/tauriClient";
 import type { ApiRequest, ApiResponse } from "../../shared/types/http";
-import { ensureUserAgentHeader, loadUserAgentSettings } from "../../services/userAgent/UserAgentService";
+import {
+  ensureUserAgentHeader,
+  loadUserAgentSettings,
+} from "../../services/userAgent/UserAgentService";
 
 export async function executeRequest(request: ApiRequest) {
   const settings = loadUserAgentSettings();
   const executableRequest = ensureUserAgentHeader(
     {
       ...request,
-      url: appendQueryParams(request.url, request.queryParams)
+      url: appendQueryParams(request.url, request.queryParams),
     },
-    settings
+    settings,
   );
 
   if (!("__TAURI_INTERNALS__" in window)) {
     return mockExecute(executableRequest);
   }
 
-  return invokeCommand<ApiResponse>("execute_request", { request: executableRequest });
+  return invokeCommand<ApiResponse>("execute_request", {
+    request: executableRequest,
+  });
 }
 
-function appendQueryParams(url: string, queryParams: ApiRequest["queryParams"]) {
+function appendQueryParams(
+  url: string,
+  queryParams: ApiRequest["queryParams"],
+) {
   const target = new URL(url);
   queryParams
     .filter((param) => param.enabled && param.key)
@@ -36,11 +44,13 @@ async function mockExecute(request: ApiRequest): Promise<ApiResponse> {
       method: request.method,
       url: request.url,
       headers: request.headers.filter((header) => header.enabled && header.key),
-      queryParams: request.queryParams.filter((param) => param.enabled && param.key),
-      body: request.body ? parseJsonOrRaw(request.body) : null
+      queryParams: request.queryParams.filter(
+        (param) => param.enabled && param.key,
+      ),
+      body: request.body ? parseJsonOrRaw(request.body) : null,
     },
     null,
-    2
+    2,
   );
 
   return {
@@ -48,13 +58,13 @@ async function mockExecute(request: ApiRequest): Promise<ApiResponse> {
     statusText: "OK",
     headers: {
       "content-type": "application/json",
-      "x-rexvit-mode": "browser-preview"
+      "x-rexvit-mode": "browser-preview",
     },
     contentType: "application/json",
     body,
     bodyEncoding: "text",
     sizeBytes: new Blob([body]).size,
-    durationMs: Math.round(performance.now() - started)
+    durationMs: Math.round(performance.now() - started),
   };
 }
 

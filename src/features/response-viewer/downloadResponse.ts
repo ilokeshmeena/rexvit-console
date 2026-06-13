@@ -2,7 +2,10 @@ import { invokeCommand } from "../../services/tauriClient";
 import type { ApiResponse } from "../../shared/types/http";
 import type { ResponseContentResolution } from "./contentType";
 
-export async function downloadResponse(response: ApiResponse, resolution: ResponseContentResolution) {
+export async function downloadResponse(
+  response: ApiResponse,
+  resolution: ResponseContentResolution,
+) {
   const fileName = `rexvit-response.${resolution.extension}`;
   const body = response.body ?? "";
 
@@ -11,20 +14,23 @@ export async function downloadResponse(response: ApiResponse, resolution: Respon
     const path = await save({
       title: "Save response",
       defaultPath: fileName,
-      filters: [{ name: resolution.label, extensions: [resolution.extension] }]
+      filters: [{ name: resolution.label, extensions: [resolution.extension] }],
     });
     if (!path) return;
     await invokeCommand("save_response_body", {
       path,
       body,
-      bodyEncoding: response.bodyEncoding
+      bodyEncoding: response.bodyEncoding,
     });
     return;
   }
 
-  const blob = response.bodyEncoding === "base64"
-    ? base64ToBlob(body, response.contentType)
-    : new Blob([body], { type: response.contentType || resolution.contentType });
+  const blob =
+    response.bodyEncoding === "base64"
+      ? base64ToBlob(body, response.contentType)
+      : new Blob([body], {
+          type: response.contentType || resolution.contentType,
+        });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;

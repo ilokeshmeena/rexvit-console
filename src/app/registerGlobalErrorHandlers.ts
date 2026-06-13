@@ -7,4 +7,3 @@ export function registerGlobalErrorHandlers() {
     console.error("Unhandled promise rejection", event.reason);
   });
 }
-

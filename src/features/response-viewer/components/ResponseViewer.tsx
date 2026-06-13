@@ -1,4 +1,12 @@
-import { ChevronsDownUp, ChevronsUpDown, Copy, Download, Maximize2, Minimize2, Wand2 } from "lucide-react";
+import {
+  ChevronsDownUp,
+  ChevronsUpDown,
+  Copy,
+  Download,
+  Maximize2,
+  Minimize2,
+  Wand2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "../../../components/ui/button";
 import { Tabs } from "../../../components/ui/tabs";
@@ -16,7 +24,9 @@ type ViewMode = "preview" | "raw" | "headers";
 export function ResponseViewer() {
   const response = useRunnerStore((state) => state.response);
   const [mode, setMode] = useState<ViewMode>("preview");
-  const [collapsed, setCollapsed] = useState(() => window.localStorage.getItem("rexvit.response.collapsed") === "true");
+  const [collapsed, setCollapsed] = useState(
+    () => window.localStorage.getItem("rexvit.response.collapsed") === "true",
+  );
   const [fullscreen, setFullscreen] = useState(false);
   const [jsonExpanded, setJsonExpanded] = useState(true);
 
@@ -35,7 +45,9 @@ export function ResponseViewer() {
   if (collapsed && !fullscreen) {
     return (
       <section className="flex h-full items-start justify-center bg-panel p-3">
-        <Button variant="ghost" size="sm" onClick={() => setCollapsed(false)}>Show Response</Button>
+        <Button variant="ghost" size="sm" onClick={() => setCollapsed(false)}>
+          Show Response
+        </Button>
       </section>
     );
   }
@@ -58,7 +70,14 @@ export function ResponseViewer() {
     <section className={shellClassName}>
       <div className="flex min-h-11 flex-wrap items-center gap-2 border-b border-border px-3 py-2">
         <h2 className="text-sm font-semibold">Response</h2>
-        <Metric tone={response.status >= 200 && response.status < 300 ? "success" : "danger"} value={`${response.status || "ERR"} ${response.statusText ?? ""}`} />
+        <Metric
+          tone={
+            response.status >= 200 && response.status < 300
+              ? "success"
+              : "danger"
+          }
+          value={`${response.status || "ERR"} ${response.statusText ?? ""}`}
+        />
         <Metric value={`${response.durationMs} ms`} />
         <Metric value={formatBytes(response.sizeBytes)} />
         <Metric value={response.contentType || resolution.contentType} />
@@ -69,45 +88,106 @@ export function ResponseViewer() {
           items={[
             { value: "preview", label: "Preview" },
             { value: "raw", label: "Raw View" },
-            { value: "headers", label: "Headers" }
+            { value: "headers", label: "Headers" },
           ]}
         />
-        <Button variant="ghost" size="icon" aria-label="Pretty format" onClick={() => setMode("preview")}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Pretty format"
+          onClick={() => setMode("preview")}
+        >
           <Wand2 className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" aria-label="Copy response" onClick={() => navigator.clipboard.writeText(body)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Copy response"
+          onClick={() => navigator.clipboard.writeText(body)}
+        >
           <Copy className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" aria-label="Download response" onClick={() => downloadResponse(response, resolution)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Download response"
+          onClick={() => downloadResponse(response, resolution)}
+        >
           <Download className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" aria-label="Expand response" onClick={() => setJsonExpanded(true)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Expand response"
+          onClick={() => setJsonExpanded(true)}
+        >
           <ChevronsUpDown className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" aria-label="Collapse response" onClick={() => setJsonExpanded(false)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Collapse response"
+          onClick={() => setJsonExpanded(false)}
+        >
           <ChevronsDownUp className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen response"} onClick={() => setFullscreen((current) => !current)}>
-          {fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen response"}
+          onClick={() => setFullscreen((current) => !current)}
+        >
+          {fullscreen ? (
+            <Minimize2 className="h-4 w-4" />
+          ) : (
+            <Maximize2 className="h-4 w-4" />
+          )}
         </Button>
-        {!fullscreen && <Button variant="ghost" size="sm" onClick={() => setCollapsed(true)}>Hide Response</Button>}
+        {!fullscreen && (
+          <Button variant="ghost" size="sm" onClick={() => setCollapsed(true)}>
+            Hide Response
+          </Button>
+        )}
       </div>
       <div className="min-h-0 flex-1 overflow-auto p-3">
-        {mode === "headers" && <TextViewer value={JSON.stringify(response.headers, null, 2)} />}
+        {mode === "headers" && (
+          <TextViewer value={JSON.stringify(response.headers, null, 2)} />
+        )}
         {mode === "raw" && <TextViewer value={body} />}
-        {mode === "preview" && resolution.viewer === "json" && <JsonViewer value={jsonExpanded ? body : minifyJson(body)} />}
-        {mode === "preview" && resolution.viewer === "text" && <TextViewer value={body} />}
-        {mode === "preview" && resolution.viewer === "html" && <HtmlPreview value={body} />}
-        {mode === "preview" && isMediaViewer(resolution.viewer) && <MediaViewer response={response} kind={resolution.viewer} />}
-        {mode === "preview" && resolution.viewer === "download" && <BinaryViewer response={response} onDownload={() => downloadResponse(response, resolution)} />}
+        {mode === "preview" && resolution.viewer === "json" && (
+          <JsonViewer value={jsonExpanded ? body : minifyJson(body)} />
+        )}
+        {mode === "preview" && resolution.viewer === "text" && (
+          <TextViewer value={body} />
+        )}
+        {mode === "preview" && resolution.viewer === "html" && (
+          <HtmlPreview value={body} />
+        )}
+        {mode === "preview" && isMediaViewer(resolution.viewer) && (
+          <MediaViewer response={response} kind={resolution.viewer} />
+        )}
+        {mode === "preview" && resolution.viewer === "download" && (
+          <BinaryViewer
+            response={response}
+            onDownload={() => downloadResponse(response, resolution)}
+          />
+        )}
       </div>
     </section>
   );
 }
 
-function Metric({ value, tone }: { value: string; tone?: "success" | "danger" }) {
+function Metric({
+  value,
+  tone,
+}: {
+  value: string;
+  tone?: "success" | "danger";
+}) {
   return (
-    <span className={`rounded bg-background px-1.5 py-0.5 font-mono text-xs ${tone === "success" ? "text-success" : tone === "danger" ? "text-danger" : "text-muted"}`}>
+    <span
+      className={`rounded bg-background px-1.5 py-0.5 font-mono text-xs ${tone === "success" ? "text-success" : tone === "danger" ? "text-danger" : "text-muted"}`}
+    >
       {value}
     </span>
   );
@@ -127,6 +207,13 @@ function minifyJson(value: string) {
   }
 }
 
-function isMediaViewer(viewer: ReturnType<typeof resolveResponseContent>["viewer"]): viewer is "image" | "video" | "audio" | "pdf" {
-  return viewer === "image" || viewer === "video" || viewer === "audio" || viewer === "pdf";
+function isMediaViewer(
+  viewer: ReturnType<typeof resolveResponseContent>["viewer"],
+): viewer is "image" | "video" | "audio" | "pdf" {
+  return (
+    viewer === "image" ||
+    viewer === "video" ||
+    viewer === "audio" ||
+    viewer === "pdf"
+  );
 }

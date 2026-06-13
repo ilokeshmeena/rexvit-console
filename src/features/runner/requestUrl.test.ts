@@ -10,9 +10,9 @@ describe("buildLiveRequestUrl", () => {
         pathParams: { userId: "123" },
         queryParams: [
           { key: "enabled", value: "true", enabled: true },
-          { key: "page", value: "1", enabled: true }
-        ]
-      })
+          { key: "page", value: "1", enabled: true },
+        ],
+      }),
     ).toBe("https://api.example.com/users/123?enabled=true&page=1");
   });
 
@@ -24,9 +24,9 @@ describe("buildLiveRequestUrl", () => {
         pathParams: { userId: "123" },
         queryParams: [
           { key: "enabled", value: "true", enabled: true },
-          { key: "page", value: "1", enabled: false }
-        ]
-      })
+          { key: "page", value: "1", enabled: false },
+        ],
+      }),
     ).toBe("https://api.example.com/users/123?enabled=true");
   });
 });

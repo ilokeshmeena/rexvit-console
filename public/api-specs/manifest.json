@@ -1,5 +1,3 @@
 {
-  "specs": [
-    "/api-specs/test-service/test-service.yaml"
-  ]
+  "specs": ["/api-specs/test-service/test-service.yaml"]
 }

@@ -1,5 +1,9 @@
 import type { ApiEndpoint, ApiVersion } from "../openapi/types";
-import type { ApiRequest, HeaderPair, QueryPair } from "../../shared/types/http";
+import type {
+  ApiRequest,
+  HeaderPair,
+  QueryPair,
+} from "../../shared/types/http";
 
 export type RequestParamsState = {
   path: Record<string, string>;
@@ -37,7 +41,12 @@ export function createRequestId() {
   return `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
-export function endpointTabKey(input: { serviceId: string; versionId: string; id?: string; endpointId?: string }) {
+export function endpointTabKey(input: {
+  serviceId: string;
+  versionId: string;
+  id?: string;
+  endpointId?: string;
+}) {
   return `${input.serviceId}:${input.versionId}:${input.endpointId ?? input.id}`;
 }
 
@@ -64,18 +73,21 @@ export function createEndpointRequest(input: {
     params: {
       path: {},
       query: input.request.queryParams,
-      headers: input.request.headers
+      headers: input.request.headers,
     },
     headers: input.request.headers,
     body: input.request.body,
     request: input.request,
     dirty: false,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
   };
 }
 
-export function createAdHocRequest(index: number, request: ApiRequest): RequestInstance {
+export function createAdHocRequest(
+  index: number,
+  request: ApiRequest,
+): RequestInstance {
   const now = new Date().toISOString();
   const requestId = createRequestId();
   return {
@@ -90,7 +102,7 @@ export function createAdHocRequest(index: number, request: ApiRequest): RequestI
     request,
     dirty: false,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
   };
 }
 
@@ -104,6 +116,6 @@ export function cloneRequestInstance(source: RequestInstance): RequestInstance {
     name: `${source.name} Copy`,
     dirty: true,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
   };
 }

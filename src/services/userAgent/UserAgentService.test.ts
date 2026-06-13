@@ -9,7 +9,7 @@ import {
   getArchitectureName,
   normalizeOsName,
   normalizeArchitecture,
-  resolveUserAgent
+  resolveUserAgent,
 } from "./UserAgentService";
 
 describe("UserAgentService", () => {
@@ -35,23 +35,36 @@ describe("UserAgentService", () => {
   });
 
   it("resolves explicit User-Agent header before custom or default", () => {
-    const settings = { useCustomUserAgent: true, customUserAgent: "MyAgent/1.0" };
+    const settings = {
+      useCustomUserAgent: true,
+      customUserAgent: "MyAgent/1.0",
+    };
     const headers = [
       { key: "User-Agent", value: "Explicit/9.9", enabled: true },
-      { key: "Accept", value: "application/json", enabled: true }
+      { key: "Accept", value: "application/json", enabled: true },
     ];
     expect(resolveUserAgent(settings, headers)).toBe("Explicit/9.9");
   });
 
   it("resolves custom User-Agent when enabled and no explicit header", () => {
-    const settings = { useCustomUserAgent: true, customUserAgent: "MyAgent/1.0" };
-    const headers = [{ key: "Accept", value: "application/json", enabled: true }];
+    const settings = {
+      useCustomUserAgent: true,
+      customUserAgent: "MyAgent/1.0",
+    };
+    const headers = [
+      { key: "Accept", value: "application/json", enabled: true },
+    ];
     expect(resolveUserAgent(settings, headers)).toBe("MyAgent/1.0");
   });
 
   it("resolves default User-Agent when custom disabled", () => {
-    const settings = { useCustomUserAgent: false, customUserAgent: "MyAgent/1.0" };
-    const headers = [{ key: "Accept", value: "application/json", enabled: true }];
+    const settings = {
+      useCustomUserAgent: false,
+      customUserAgent: "MyAgent/1.0",
+    };
+    const headers = [
+      { key: "Accept", value: "application/json", enabled: true },
+    ];
     expect(resolveUserAgent(settings, headers)).toContain("RexVitConsole/");
   });
 
@@ -62,33 +75,46 @@ describe("UserAgentService", () => {
       url: "https://example.com",
       headers: [{ key: "Accept", value: "application/json", enabled: true }],
       queryParams: [],
-      timeoutMs: 30000
+      timeoutMs: 30000,
     };
 
     const updated = ensureUserAgentHeader(request, settings);
-    expect(updated.headers.some((header) => header.key === "User-Agent" && header.enabled)).toBe(true);
+    expect(
+      updated.headers.some(
+        (header) => header.key === "User-Agent" && header.enabled,
+      ),
+    ).toBe(true);
   });
 
   it("does not override an explicit User-Agent header", () => {
-    const settings = { useCustomUserAgent: true, customUserAgent: "MyAgent/1.0" };
+    const settings = {
+      useCustomUserAgent: true,
+      customUserAgent: "MyAgent/1.0",
+    };
     const request: ApiRequest = {
       method: "GET",
       url: "https://example.com",
       headers: [
         { key: "User-Agent", value: "Explicit/9.9", enabled: true },
-        { key: "Accept", value: "application/json", enabled: true }
+        { key: "Accept", value: "application/json", enabled: true },
       ],
       queryParams: [],
-      timeoutMs: 30000
+      timeoutMs: 30000,
     };
 
     const updated = ensureUserAgentHeader(request, settings);
-    expect(updated.headers.filter((header) => header.key === "User-Agent")).toHaveLength(1);
-    expect(updated.headers.find((header) => header.key === "User-Agent")?.value).toBe("Explicit/9.9");
+    expect(
+      updated.headers.filter((header) => header.key === "User-Agent"),
+    ).toHaveLength(1);
+    expect(
+      updated.headers.find((header) => header.key === "User-Agent")?.value,
+    ).toBe("Explicit/9.9");
   });
 
   it("detects explicit User-Agent header unsupported if disabled", () => {
-    const headers = [{ key: "User-Agent", value: "Explicit/9.9", enabled: false }];
+    const headers = [
+      { key: "User-Agent", value: "Explicit/9.9", enabled: false },
+    ];
     expect(getExplicitUserAgentHeader(headers)).toBeUndefined();
   });
 });

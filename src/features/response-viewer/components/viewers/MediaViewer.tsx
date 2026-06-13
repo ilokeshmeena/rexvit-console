@@ -11,7 +11,10 @@ type MediaViewerProps = {
 export function MediaViewer({ response, kind }: MediaViewerProps) {
   const [zoom, setZoom] = useState(1);
   const body = response.body ?? "";
-  const src = response.bodyEncoding === "base64" ? `data:${response.contentType};base64,${body}` : body;
+  const src =
+    response.bodyEncoding === "base64"
+      ? `data:${response.contentType};base64,${body}`
+      : body;
 
   if (kind === "image") {
     return (
@@ -20,7 +23,10 @@ export function MediaViewer({ response, kind }: MediaViewerProps) {
         <div className="min-h-0 flex-1 overflow-auto rounded-md bg-background/60">
           <img
             className="mx-auto rounded-md object-contain"
-            style={{ transform: `scale(${zoom})`, transformOrigin: "top center" }}
+            style={{
+              transform: `scale(${zoom})`,
+              transformOrigin: "top center",
+            }}
             src={src}
             alt="Response preview"
           />
@@ -30,7 +36,9 @@ export function MediaViewer({ response, kind }: MediaViewerProps) {
   }
 
   if (kind === "video") {
-    return <video className="h-full w-full rounded-md bg-black" src={src} controls />;
+    return (
+      <video className="h-full w-full rounded-md bg-black" src={src} controls />
+    );
   }
 
   if (kind === "audio") {
@@ -50,13 +58,35 @@ export function MediaViewer({ response, kind }: MediaViewerProps) {
   );
 }
 
-function ZoomControls({ zoom, onZoom }: { zoom: number; onZoom: (zoom: number) => void }) {
+function ZoomControls({
+  zoom,
+  onZoom,
+}: {
+  zoom: number;
+  onZoom: (zoom: number) => void;
+}) {
   return (
     <div className="flex items-center gap-2 text-xs text-muted">
-      <Button variant="ghost" size="sm" onClick={() => onZoom(Math.max(0.5, zoom - 0.25))}>-</Button>
-      <span className="w-12 text-center font-mono">{Math.round(zoom * 100)}%</span>
-      <Button variant="ghost" size="sm" onClick={() => onZoom(Math.min(3, zoom + 0.25))}>+</Button>
-      <Button variant="ghost" size="sm" onClick={() => onZoom(1)}>Reset</Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onZoom(Math.max(0.5, zoom - 0.25))}
+      >
+        -
+      </Button>
+      <span className="w-12 text-center font-mono">
+        {Math.round(zoom * 100)}%
+      </span>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onZoom(Math.min(3, zoom + 0.25))}
+      >
+        +
+      </Button>
+      <Button variant="ghost" size="sm" onClick={() => onZoom(1)}>
+        Reset
+      </Button>
     </div>
   );
 }

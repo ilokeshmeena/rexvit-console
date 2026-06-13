@@ -14,7 +14,7 @@ const methodTone: Record<string, string> = {
   POST: "text-accent",
   PUT: "text-warning",
   PATCH: "text-warning",
-  DELETE: "text-danger"
+  DELETE: "text-danger",
 };
 
 type ServiceSidebarProps = {
@@ -22,26 +22,44 @@ type ServiceSidebarProps = {
   onSearchQueryChange: (query: string) => void;
 };
 
-export function ServiceSidebar({ searchQuery, onSearchQueryChange }: ServiceSidebarProps) {
+export function ServiceSidebar({
+  searchQuery,
+  onSearchQueryChange,
+}: ServiceSidebarProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const services = useOpenApiStore((state) => state.services);
   const selectedVersionId = useOpenApiStore((state) => state.selectedVersionId);
-  const selectedEndpointId = useOpenApiStore((state) => state.selectedEndpointId);
+  const selectedEndpointId = useOpenApiStore(
+    (state) => state.selectedEndpointId,
+  );
   const setServices = useOpenApiStore((state) => state.setServices);
   const selectVersion = useOpenApiStore((state) => state.selectVersion);
   const selectEndpoint = useOpenApiStore((state) => state.selectEndpoint);
   const favorites = useAppDataStore((state) => state.favorites);
   const history = useAppDataStore((state) => state.history);
   const isFavorite = useAppDataStore((state) => state.isFavorite);
-  const toggleEndpointFavorite = useAppDataStore((state) => state.toggleEndpointFavorite);
-  const restoreSnapshot = useRequestWorkspaceStore((state) => state.restoreSnapshot);
+  const toggleEndpointFavorite = useAppDataStore(
+    (state) => state.toggleEndpointFavorite,
+  );
+  const restoreSnapshot = useRequestWorkspaceStore(
+    (state) => state.restoreSnapshot,
+  );
   const endpointResults = searchEndpoints(services, searchQuery);
-  const favoriteEndpointIds = new Set(favorites.map((favorite) => favorite.endpointId));
+  const favoriteEndpointIds = new Set(
+    favorites.map((favorite) => favorite.endpointId),
+  );
   const [serviceView, setServiceView] = useState<"all" | "recent">("all");
 
   const endpointsById = useMemo(
-    () => new Map(services.flatMap((service) => service.endpoints.map((endpoint) => [endpoint.id, { service, endpoint }] as const))),
-    [services]
+    () =>
+      new Map(
+        services.flatMap((service) =>
+          service.endpoints.map(
+            (endpoint) => [endpoint.id, { service, endpoint }] as const,
+          ),
+        ),
+      ),
+    [services],
   );
 
   const recentServiceIds = useMemo(() => {
@@ -61,11 +79,19 @@ export function ServiceSidebar({ searchQuery, onSearchQueryChange }: ServiceSide
   }, [history, endpointsById]);
 
   const recentServices = useMemo(
-    () => recentServiceIds.map((serviceId) => services.find((service) => service.id === serviceId)).filter(Boolean) as ApiService[],
-    [recentServiceIds, services]
+    () =>
+      recentServiceIds
+        .map((serviceId) =>
+          services.find((service) => service.id === serviceId),
+        )
+        .filter(Boolean) as ApiService[],
+    [recentServiceIds, services],
   );
 
-  const recentServiceIdSet = useMemo(() => new Set(recentServiceIds), [recentServiceIds]);
+  const recentServiceIdSet = useMemo(
+    () => new Set(recentServiceIds),
+    [recentServiceIds],
+  );
 
   const allServices = useMemo(() => services, [services]);
 
@@ -75,24 +101,65 @@ export function ServiceSidebar({ searchQuery, onSearchQueryChange }: ServiceSide
     }
 
     window.addEventListener("rexvit:focus-endpoint-search", focusSearch);
-    return () => window.removeEventListener("rexvit:focus-endpoint-search", focusSearch);
+    return () =>
+      window.removeEventListener("rexvit:focus-endpoint-search", focusSearch);
   }, []);
 
   async function loadFolder(files: FileList | null, input: HTMLInputElement) {
     if (!files?.length) return;
+    const existingServices = useOpenApiStore.getState().services;
     const loaded = await loadServicesFromFiles(files);
     if (loaded.length > 0) {
-      setServices(loaded);
+      const merged = mergeServices(existingServices, loaded);
+      setServices(merged);
       setServiceView("all");
     }
     input.value = "";
+  }
+
+  function mergeServices(
+    existing: ApiService[],
+    incoming: ApiService[],
+  ): ApiService[] {
+    const map = new Map(existing.map((s) => [s.id, s]));
+
+    for (const service of incoming) {
+      const current = map.get(service.id);
+
+      if (!current) {
+        map.set(service.id, service);
+        continue;
+      }
+
+      const versions = [...current.versions];
+
+      for (const version of service.versions) {
+        const index = versions.findIndex((v) => v.label === version.label);
+
+        if (index >= 0) {
+          versions[index] = version; // replace same version
+        } else {
+          versions.push(version); // add new version
+        }
+      }
+
+      map.set(service.id, {
+        ...current,
+        versions,
+        endpoints: versions.flatMap((v) => v.endpoints),
+      });
+    }
+
+    return [...map.values()];
   }
 
   return (
     <aside className="flex min-h-0 flex-col border-r border-border bg-surface">
       <div className="flex h-11 items-center gap-2 border-b border-border px-3">
         <h2 className="text-sm font-semibold">Services</h2>
-        <span className="rounded bg-panel px-1.5 py-0.5 text-xs text-muted">{services.length}</span>
+        <span className="rounded bg-panel px-1.5 py-0.5 text-xs text-muted">
+          {services.length}
+        </span>
       </div>
       <div className="border-b border-border p-2">
         <label className="focus-within:ring-accent inline-flex h-8 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md bg-panel px-2 text-xs font-medium text-muted transition-colors hover:text-foreground focus-within:ring-2">
@@ -103,8 +170,14 @@ export function ServiceSidebar({ searchQuery, onSearchQueryChange }: ServiceSide
             type="file"
             multiple
             accept=".yaml,.yml,.json"
-            onChange={(event) => loadFolder(event.currentTarget.files, event.currentTarget)}
-            {...({ webkitdirectory: "true", directory: "true", mozdirectory: "true" } as any)}
+            onChange={(event) =>
+              loadFolder(event.currentTarget.files, event.currentTarget)
+            }
+            {...({
+              webkitdirectory: "true",
+              directory: "true",
+              mozdirectory: "true",
+            } as any)}
           />
         </label>
       </div>
@@ -126,7 +199,7 @@ export function ServiceSidebar({ searchQuery, onSearchQueryChange }: ServiceSide
             onValueChange={setServiceView}
             items={[
               { value: "all", label: "All services" },
-              { value: "recent", label: "Recent services" }
+              { value: "recent", label: "Recent services" },
             ]}
           />
         </div>
@@ -134,7 +207,9 @@ export function ServiceSidebar({ searchQuery, onSearchQueryChange }: ServiceSide
       <div className="min-h-0 flex-1 overflow-auto p-2">
         {searchQuery.trim() && (
           <section className="mb-3">
-            <div className="px-1.5 py-1 text-xs font-semibold uppercase tracking-wide text-muted">Search</div>
+            <div className="px-1.5 py-1 text-xs font-semibold uppercase tracking-wide text-muted">
+              Search
+            </div>
             <div className="space-y-1">
               {endpointResults.map(({ service, endpoint }) => (
                 <EndpointButton
@@ -228,10 +303,18 @@ export function ServiceSidebar({ searchQuery, onSearchQueryChange }: ServiceSide
                         if (item.endpointId) selectEndpoint(item.endpointId);
                       }}
                     >
-                      <span className={`font-mono font-semibold ${methodTone[item.method] ?? "text-muted"}`}>{item.method}</span>
+                      <span
+                        className={`font-mono font-semibold ${methodTone[item.method] ?? "text-muted"}`}
+                      >
+                        {item.method}
+                      </span>
                       <span className="min-w-0">
-                        <span className="block truncate font-mono text-foreground">{item.url}</span>
-                        <span className="block truncate text-muted">{item.status} · {item.durationMs} ms</span>
+                        <span className="block truncate font-mono text-foreground">
+                          {item.url}
+                        </span>
+                        <span className="block truncate text-muted">
+                          {item.status} · {item.durationMs} ms
+                        </span>
                       </span>
                     </button>
                   ))}
@@ -246,20 +329,29 @@ export function ServiceSidebar({ searchQuery, onSearchQueryChange }: ServiceSide
             {allServices.length > 0 ? (
               allServices.map((service) => (
                 <section key={service.id} className="mb-3">
-                  <div className="px-1.5 py-1 text-xs font-semibold uppercase tracking-wide text-muted">{service.folder}</div>
+                  <div className="px-1.5 py-1 text-xs font-semibold uppercase tracking-wide text-muted">
+                    {service.folder}
+                  </div>
                   <div className="space-y-1">
                     {service.versions.map((version) => (
-                      <div key={version.id} className="rounded-md bg-background/35">
+                      <div
+                        key={version.id}
+                        className="rounded-md bg-background/35"
+                      >
                         <button
                           type="button"
                           className={[
                             "focus-ring flex h-8 w-full items-center justify-between rounded-md px-2 text-left text-sm transition-colors",
-                            selectedVersionId === version.id ? "bg-panel text-foreground" : "text-muted hover:bg-white/5 hover:text-foreground"
+                            selectedVersionId === version.id
+                              ? "bg-panel text-foreground"
+                              : "text-muted hover:bg-white/5 hover:text-foreground",
                           ].join(" ")}
                           onClick={() => selectVersion(version.id)}
                         >
                           <span className="truncate">{service.name}</span>
-                          <span className="ml-2 rounded bg-background px-1.5 py-0.5 font-mono text-[11px] text-muted">{version.label}</span>
+                          <span className="ml-2 rounded bg-background px-1.5 py-0.5 font-mono text-[11px] text-muted">
+                            {version.label}
+                          </span>
                         </button>
                         {selectedVersionId === version.id && (
                           <div className="pb-1">
@@ -269,9 +361,15 @@ export function ServiceSidebar({ searchQuery, onSearchQueryChange }: ServiceSide
                                 endpoint={endpoint}
                                 selected={selectedEndpointId === endpoint.id}
                                 favorite={isFavorite(endpoint.id)}
-                                subtitle={endpoint.summary ?? endpoint.operationId ?? "Endpoint"}
+                                subtitle={
+                                  endpoint.summary ??
+                                  endpoint.operationId ??
+                                  "Endpoint"
+                                }
                                 onSelect={() => selectEndpoint(endpoint.id)}
-                                onToggleFavorite={() => toggleEndpointFavorite(endpoint.id)}
+                                onToggleFavorite={() =>
+                                  toggleEndpointFavorite(endpoint.id)
+                                }
                               />
                             ))}
                           </div>
@@ -282,7 +380,9 @@ export function ServiceSidebar({ searchQuery, onSearchQueryChange }: ServiceSide
                 </section>
               ))
             ) : (
-              <div className="rounded-md border border-border bg-panel p-3 text-sm text-muted">No services available.</div>
+              <div className="rounded-md border border-border bg-panel p-3 text-sm text-muted">
+                No services available.
+              </div>
             )}
           </>
         )}
@@ -343,7 +443,7 @@ function EndpointButton({
   favorite,
   subtitle,
   onSelect,
-  onToggleFavorite
+  onToggleFavorite,
 }: {
   endpoint: ApiEndpoint;
   selected: boolean;
@@ -356,13 +456,23 @@ function EndpointButton({
     <div
       className={[
         "grid grid-cols-[1fr_28px] rounded transition-colors",
-        selected ? "bg-accent/15" : "hover:bg-white/[0.035]"
+        selected ? "bg-accent/15" : "hover:bg-white/[0.035]",
       ].join(" ")}
     >
-      <button type="button" className="focus-ring grid min-w-0 grid-cols-[48px_1fr] gap-1 rounded px-2 py-1.5 text-left text-xs" onClick={onSelect}>
-        <span className={`font-mono font-semibold ${methodTone[endpoint.method]}`}>{endpoint.method}</span>
+      <button
+        type="button"
+        className="focus-ring grid min-w-0 grid-cols-[48px_1fr] gap-1 rounded px-2 py-1.5 text-left text-xs"
+        onClick={onSelect}
+      >
+        <span
+          className={`font-mono font-semibold ${methodTone[endpoint.method]}`}
+        >
+          {endpoint.method}
+        </span>
         <span className="min-w-0">
-          <span className="block truncate font-mono text-foreground">{endpoint.path}</span>
+          <span className="block truncate font-mono text-foreground">
+            {endpoint.path}
+          </span>
           <span className="block truncate text-muted">{subtitle}</span>
         </span>
       </button>
@@ -372,7 +482,9 @@ function EndpointButton({
         aria-label={favorite ? "Remove favorite" : "Add favorite"}
         onClick={onToggleFavorite}
       >
-        <Star className={`h-3.5 w-3.5 ${favorite ? "fill-warning text-warning" : ""}`} />
+        <Star
+          className={`h-3.5 w-3.5 ${favorite ? "fill-warning text-warning" : ""}`}
+        />
       </button>
     </div>
   );

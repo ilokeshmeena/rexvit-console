@@ -6,21 +6,33 @@ export type EndpointSearchResult = {
   score: number;
 };
 
-export function searchEndpoints(services: ApiService[], query: string): EndpointSearchResult[] {
+export function searchEndpoints(
+  services: ApiService[],
+  query: string,
+): EndpointSearchResult[] {
   const normalized = query.trim().toLowerCase();
-  const all = services.flatMap((service) => service.endpoints.map((endpoint) => ({ service, endpoint, score: 1 })));
+  const all = services.flatMap((service) =>
+    service.endpoints.map((endpoint) => ({ service, endpoint, score: 1 })),
+  );
   if (!normalized) return all;
 
   return all
     .map((result) => ({
       ...result,
-      score: scoreEndpoint(result.service, result.endpoint, normalized)
+      score: scoreEndpoint(result.service, result.endpoint, normalized),
     }))
     .filter((result) => result.score > 0)
-    .sort((a, b) => b.score - a.score || a.endpoint.path.localeCompare(b.endpoint.path));
+    .sort(
+      (a, b) =>
+        b.score - a.score || a.endpoint.path.localeCompare(b.endpoint.path),
+    );
 }
 
-function scoreEndpoint(service: ApiService, endpoint: ApiEndpoint, query: string) {
+function scoreEndpoint(
+  service: ApiService,
+  endpoint: ApiEndpoint,
+  query: string,
+) {
   const fields = [
     endpoint.path,
     endpoint.method,
@@ -29,7 +41,7 @@ function scoreEndpoint(service: ApiService, endpoint: ApiEndpoint, query: string
     endpoint.version,
     service.name,
     service.folder,
-    ...endpoint.tags
+    ...endpoint.tags,
   ]
     .filter(Boolean)
     .join(" ")

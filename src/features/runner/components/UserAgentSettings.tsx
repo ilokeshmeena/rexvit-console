@@ -5,18 +5,23 @@ import {
   getCurrentUserAgent,
   loadUserAgentSettings,
   saveUserAgentSettings,
-  type UserAgentSettings
+  type UserAgentSettings,
 } from "../../../services/userAgent/UserAgentService";
 
 export function UserAgentSettings() {
-  const [settings, setSettings] = useState<UserAgentSettings>(loadUserAgentSettings());
+  const [settings, setSettings] = useState<UserAgentSettings>(
+    loadUserAgentSettings(),
+  );
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     setSettings(loadUserAgentSettings());
   }, []);
 
-  const currentUserAgent = useMemo(() => getCurrentUserAgent(settings), [settings]);
+  const currentUserAgent = useMemo(
+    () => getCurrentUserAgent(settings),
+    [settings],
+  );
 
   async function updateSettings(next: UserAgentSettings) {
     setSettings(next);
@@ -41,7 +46,12 @@ export function UserAgentSettings() {
             <input
               type="checkbox"
               checked={settings.useCustomUserAgent}
-              onChange={(event) => updateSettings({ ...settings, useCustomUserAgent: event.target.checked })}
+              onChange={(event) =>
+                updateSettings({
+                  ...settings,
+                  useCustomUserAgent: event.target.checked,
+                })
+              }
               className="focus-ring h-4 w-4 rounded border border-border bg-background accent-accent"
             />
             Use custom User-Agent
@@ -49,7 +59,12 @@ export function UserAgentSettings() {
           <input
             className="focus-ring w-full rounded-md border border-border bg-background px-2 py-2 text-xs text-foreground"
             value={settings.customUserAgent}
-            onChange={(event) => updateSettings({ ...settings, customUserAgent: event.target.value })}
+            onChange={(event) =>
+              updateSettings({
+                ...settings,
+                customUserAgent: event.target.value,
+              })
+            }
             placeholder="Custom User-Agent string"
             disabled={!settings.useCustomUserAgent}
           />
@@ -57,8 +72,12 @@ export function UserAgentSettings() {
         <div className="rounded-md border border-border bg-background/70 p-3">
           <div className="flex items-center justify-between gap-2">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.15em] text-muted">Effective User-Agent</p>
-              <p className="mt-1 break-words text-[13px] leading-5 text-foreground">{currentUserAgent}</p>
+              <p className="text-[11px] uppercase tracking-[0.15em] text-muted">
+                Effective User-Agent
+              </p>
+              <p className="mt-1 break-words text-[13px] leading-5 text-foreground">
+                {currentUserAgent}
+              </p>
             </div>
             <Button variant="ghost" size="sm" onClick={copyUserAgent}>
               <Copy className="h-3.5 w-3.5" />
@@ -67,7 +86,8 @@ export function UserAgentSettings() {
           </div>
         </div>
         <p className="text-[11px] text-muted">
-          Request-specific <code>User-Agent</code> headers will override this setting when present.
+          Request-specific <code>User-Agent</code> headers will override this
+          setting when present.
         </p>
       </div>
     </section>

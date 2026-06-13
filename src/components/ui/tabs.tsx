@@ -8,15 +8,26 @@ type TabsProps<T extends string> = {
   className?: string;
 };
 
-export function Tabs<T extends string>({ value, items, onValueChange, className }: TabsProps<T>) {
+export function Tabs<T extends string>({
+  value,
+  items,
+  onValueChange,
+  className,
+}: TabsProps<T>) {
   return (
-    <div className={cn("inline-flex rounded-md border border-border bg-background/60 p-0.5", className)} role="tablist">
+    <div
+      className={cn(
+        "inline-flex rounded-md border border-border bg-background/60 p-0.5",
+        className,
+      )}
+      role="tablist"
+    >
       {items.map((item) => (
         <button
           key={item.value}
           className={cn(
             "focus-ring h-7 rounded px-2 text-xs font-medium text-muted transition-colors",
-            value === item.value && "bg-panel text-foreground shadow-sm"
+            value === item.value && "bg-panel text-foreground shadow-sm",
           )}
           role="tab"
           aria-selected={value === item.value}
@@ -29,4 +40,3 @@ export function Tabs<T extends string>({ value, items, onValueChange, className 
     </div>
   );
 }
-

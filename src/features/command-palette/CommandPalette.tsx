@@ -12,12 +12,18 @@ type CommandPaletteProps = {
   onSearchRequest: (query: string) => void;
 };
 
-export function CommandPalette({ open, onOpenChange, onSearchRequest }: CommandPaletteProps) {
+export function CommandPalette({
+  open,
+  onOpenChange,
+  onSearchRequest,
+}: CommandPaletteProps) {
   const services = useOpenApiStore((state) => state.services);
   const selectEndpoint = useOpenApiStore((state) => state.selectEndpoint);
   const history = useAppDataStore((state) => state.history);
   const isFavorite = useAppDataStore((state) => state.isFavorite);
-  const toggleEndpointFavorite = useAppDataStore((state) => state.toggleEndpointFavorite);
+  const toggleEndpointFavorite = useAppDataStore(
+    (state) => state.toggleEndpointFavorite,
+  );
   const [query, setQuery] = useState("");
   const results = searchEndpoints(services, query).slice(0, 8);
 
@@ -29,7 +35,11 @@ export function CommandPalette({ open, onOpenChange, onSearchRequest }: CommandP
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-50 bg-black/45 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="mx-auto mt-[8vh] max-w-2xl overflow-hidden rounded-lg border border-border bg-surface shadow-panel">
         <div className="flex h-12 items-center gap-2 border-b border-border px-3">
           <Search className="h-4 w-4 text-muted" />
@@ -47,7 +57,12 @@ export function CommandPalette({ open, onOpenChange, onSearchRequest }: CommandP
             }}
             placeholder="Search endpoints, run commands"
           />
-          <Button variant="ghost" size="icon" aria-label="Close command palette" onClick={close}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Close command palette"
+            onClick={close}
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -66,7 +81,10 @@ export function CommandPalette({ open, onOpenChange, onSearchRequest }: CommandP
           )}
           <SectionTitle>Endpoints</SectionTitle>
           {results.map(({ service, endpoint }) => (
-            <div key={endpoint.id} className="grid grid-cols-[1fr_32px] rounded-md hover:bg-white/5">
+            <div
+              key={endpoint.id}
+              className="grid grid-cols-[1fr_32px] rounded-md hover:bg-white/5"
+            >
               <button
                 type="button"
                 className="focus-ring grid min-w-0 grid-cols-[60px_1fr] gap-2 rounded-md px-2 py-2 text-left text-sm"
@@ -75,10 +93,16 @@ export function CommandPalette({ open, onOpenChange, onSearchRequest }: CommandP
                   close();
                 }}
               >
-                <span className="font-mono text-xs font-semibold text-accent">{endpoint.method}</span>
+                <span className="font-mono text-xs font-semibold text-accent">
+                  {endpoint.method}
+                </span>
                 <span className="min-w-0">
-                  <span className="block truncate font-mono text-foreground">{endpoint.path}</span>
-                  <span className="block truncate text-xs text-muted">{service.name} · {endpoint.version}</span>
+                  <span className="block truncate font-mono text-foreground">
+                    {endpoint.path}
+                  </span>
+                  <span className="block truncate text-xs text-muted">
+                    {service.name} · {endpoint.version}
+                  </span>
                 </span>
               </button>
               <button
@@ -87,7 +111,9 @@ export function CommandPalette({ open, onOpenChange, onSearchRequest }: CommandP
                 aria-label="Toggle favorite"
                 onClick={() => toggleEndpointFavorite(endpoint.id)}
               >
-                <Star className={`h-4 w-4 ${isFavorite(endpoint.id) ? "fill-warning text-warning" : ""}`} />
+                <Star
+                  className={`h-4 w-4 ${isFavorite(endpoint.id) ? "fill-warning text-warning" : ""}`}
+                />
               </button>
             </div>
           ))}
@@ -104,10 +130,16 @@ export function CommandPalette({ open, onOpenChange, onSearchRequest }: CommandP
                     close();
                   }}
                 >
-                  <span className="font-mono text-xs font-semibold">{item.method}</span>
+                  <span className="font-mono text-xs font-semibold">
+                    {item.method}
+                  </span>
                   <span className="min-w-0">
-                    <span className="block truncate font-mono text-foreground">{item.url}</span>
-                    <span className="block truncate text-xs">{item.status} · {item.durationMs} ms</span>
+                    <span className="block truncate font-mono text-foreground">
+                      {item.url}
+                    </span>
+                    <span className="block truncate text-xs">
+                      {item.status} · {item.durationMs} ms
+                    </span>
                   </span>
                 </button>
               ))}
@@ -126,5 +158,9 @@ export function CommandPalette({ open, onOpenChange, onSearchRequest }: CommandP
 }
 
 function SectionTitle({ children }: { children: ReactNode }) {
-  return <div className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-muted">{children}</div>;
+  return (
+    <div className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-muted">
+      {children}
+    </div>
+  );
 }

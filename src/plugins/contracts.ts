@@ -18,4 +18,3 @@ export type ResponseRenderer = {
   kind: ResponseKind;
   label: string;
 };
-

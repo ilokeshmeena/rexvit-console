@@ -5,4 +5,3 @@ export function TextViewer({ value }: { value: string | null }) {
     </pre>
   );
 }
-

@@ -21,15 +21,24 @@ export function AppShell() {
   const selectedEndpoint = useOpenApiStore((state) => state.selectedEndpoint());
   const selectedVersion = useOpenApiStore((state) => state.selectedVersion());
   const environments = useRunnerStore((state) => state.environments);
-  const selectedEnvironmentId = useRunnerStore((state) => state.selectedEnvironmentId);
+  const selectedEnvironmentId = useRunnerStore(
+    (state) => state.selectedEnvironmentId,
+  );
   const setEnvironment = useRunnerStore((state) => state.setEnvironment);
-  const setRequestFromEndpoint = useRunnerStore((state) => state.setRequestFromEndpoint);
+  const setRequestFromEndpoint = useRunnerStore(
+    (state) => state.setRequestFromEndpoint,
+  );
   const loadPersistedData = useAppDataStore((state) => state.loadPersistedData);
   const hydrateWorkspace = useRequestWorkspaceStore((state) => state.hydrate);
-  const openEndpointRequest = useRequestWorkspaceStore((state) => state.openEndpointRequest);
+  const openEndpointRequest = useRequestWorkspaceStore(
+    (state) => state.openEndpointRequest,
+  );
   const selectedEnvironment = useMemo(
-    () => environments.find((environment) => environment.id === selectedEnvironmentId) ?? environments[0],
-    [environments, selectedEnvironmentId]
+    () =>
+      environments.find(
+        (environment) => environment.id === selectedEnvironmentId,
+      ) ?? environments[0],
+    [environments, selectedEnvironmentId],
   );
 
   useEffect(() => {
@@ -40,7 +49,13 @@ export function AppShell() {
         setServices(services);
         setLoadError(null);
       })
-      .catch((error: unknown) => setLoadError(error instanceof Error ? error.message : "Failed to load mock OpenAPI files"))
+      .catch((error: unknown) =>
+        setLoadError(
+          error instanceof Error
+            ? error.message
+            : "Failed to load mock OpenAPI files",
+        ),
+      )
       .finally(() => setIsLoadingSpecs(false));
   }, [hydrateWorkspace, loadPersistedData, setServices]);
 
@@ -71,11 +86,25 @@ export function AppShell() {
     setRequestFromEndpoint({
       method: selectedEndpoint.method,
       path: selectedEndpoint.path,
-      baseUrl: resolveEnvironmentBaseUrl(selectedVersion?.baseUrl, selectedEnvironment.baseUrl),
-      body: selectedEndpoint.requestBodyExample
+      baseUrl: resolveEnvironmentBaseUrl(
+        selectedVersion?.baseUrl,
+        selectedEnvironment.baseUrl,
+      ),
+      body: selectedEndpoint.requestBodyExample,
     });
-    openEndpointRequest({ endpoint: selectedEndpoint, version: selectedVersion, request: useRunnerStore.getState().request });
-  }, [openEndpointRequest, selectedEndpoint, selectedEnvironment.baseUrl, selectedVersion, selectedVersion?.baseUrl, setRequestFromEndpoint]);
+    openEndpointRequest({
+      endpoint: selectedEndpoint,
+      version: selectedVersion,
+      request: useRunnerStore.getState().request,
+    });
+  }, [
+    openEndpointRequest,
+    selectedEndpoint,
+    selectedEnvironment.baseUrl,
+    selectedVersion,
+    selectedVersion?.baseUrl,
+    setRequestFromEndpoint,
+  ]);
 
   return (
     <div className="grid h-screen grid-cols-1 grid-rows-[48px_240px_minmax(360px,1fr)_minmax(320px,0.8fr)] overflow-hidden bg-background text-foreground lg:grid-cols-[300px_minmax(460px,1fr)_minmax(380px,0.8fr)] lg:grid-rows-[48px_1fr]">
@@ -90,8 +119,15 @@ export function AppShell() {
             Loading specs
           </span>
         )}
-        {loadError && <span className="truncate text-xs text-danger">{loadError}</span>}
-        <Button className="ml-auto hidden w-56 justify-start text-muted md:inline-flex" variant="ghost" size="sm" onClick={() => setPaletteOpen(true)}>
+        {loadError && (
+          <span className="truncate text-xs text-danger">{loadError}</span>
+        )}
+        <Button
+          className="ml-auto hidden w-56 justify-start text-muted md:inline-flex"
+          variant="ghost"
+          size="sm"
+          onClick={() => setPaletteOpen(true)}
+        >
           <Search className="h-3.5 w-3.5" />
           Command palette
           <span className="ml-auto flex items-center gap-0.5 font-mono text-[10px] text-muted">
@@ -111,19 +147,29 @@ export function AppShell() {
           ))}
         </Select> */}
       </header>
-      <ServiceSidebar searchQuery={sidebarSearch} onSearchQueryChange={setSidebarSearch} />
+      <ServiceSidebar
+        searchQuery={sidebarSearch}
+        onSearchQueryChange={setSidebarSearch}
+      />
       <main className="min-h-0 border-r border-border">
         <RequestBuilder />
       </main>
       <section className="min-h-0 bg-panel">
         <ResponseViewer />
       </section>
-      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} onSearchRequest={setSidebarSearch} />
+      <CommandPalette
+        open={paletteOpen}
+        onOpenChange={setPaletteOpen}
+        onSearchRequest={setSidebarSearch}
+      />
     </div>
   );
 }
 
-function resolveEnvironmentBaseUrl(specBaseUrl: string | undefined, environmentBaseUrl: string) {
+function resolveEnvironmentBaseUrl(
+  specBaseUrl: string | undefined,
+  environmentBaseUrl: string,
+) {
   if (!specBaseUrl) return environmentBaseUrl;
 
   try {
@@ -137,5 +183,8 @@ function resolveEnvironmentBaseUrl(specBaseUrl: string | undefined, environmentB
 
 function isEditableTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
-  return ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || target.isContentEditable;
+  return (
+    ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
+    target.isContentEditable
+  );
 }

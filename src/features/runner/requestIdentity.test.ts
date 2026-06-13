@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { createAdHocRequest, createEndpointRequest, endpointTabKey } from "./requestIdentity";
+import {
+  createAdHocRequest,
+  createEndpointRequest,
+  endpointTabKey,
+} from "./requestIdentity";
 import type { ApiEndpoint, ApiVersion } from "../openapi/types";
 import type { ApiRequest } from "../../shared/types/http";
 
@@ -8,7 +12,7 @@ const request: ApiRequest = {
   url: "https://api.example.com/users",
   headers: [],
   queryParams: [],
-  timeoutMs: 30_000
+  timeoutMs: 30_000,
 };
 
 const endpoint: ApiEndpoint = {
@@ -19,7 +23,7 @@ const endpoint: ApiEndpoint = {
   method: "GET",
   path: "/users",
   tags: [],
-  parameters: []
+  parameters: [],
 };
 
 const version: ApiVersion = {
@@ -28,7 +32,7 @@ const version: ApiVersion = {
   label: "v1",
   specPath: "api-specs/user/v1.yaml",
   endpoints: [endpoint],
-  servers: [{ url: "https://api.example.com", description: "Production" }]
+  servers: [{ url: "https://api.example.com", description: "Production" }],
 };
 
 describe("request identity", () => {
@@ -37,7 +41,12 @@ describe("request identity", () => {
   });
 
   it("creates persistent endpoint request identity", () => {
-    const instance = createEndpointRequest({ endpoint, version, request, existingId: "req_12345" });
+    const instance = createEndpointRequest({
+      endpoint,
+      version,
+      request,
+      existingId: "req_12345",
+    });
     expect(instance.requestId).toBe("req_12345");
     expect(instance.tabKey).toBe(endpointTabKey(endpoint));
     expect(instance.endpointId).toBe(endpoint.id);

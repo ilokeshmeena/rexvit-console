@@ -7,13 +7,13 @@ import {
   getDefaultServerVariables,
   getEffectiveServerUrl,
   getServerVariableOptions,
-  resolveServerUrl
+  resolveServerUrl,
 } from "./serverResolver";
 
 describe("serverResolver", () => {
   const basicServer: OpenApiServer = {
     url: "https://api.example.com",
-    description: "Production"
+    description: "Production",
   };
 
   const serverWithVariables: OpenApiServer = {
@@ -24,9 +24,9 @@ describe("serverResolver", () => {
         name: "environment",
         default: "prod",
         enum: ["dev", "qa", "prod"],
-        description: "Environment"
-      }
-    }
+        description: "Environment",
+      },
+    },
   };
 
   it("resolves server URL without variables", () => {
@@ -35,7 +35,9 @@ describe("serverResolver", () => {
   });
 
   it("resolves server URL with variables", () => {
-    const resolved = resolveServerUrl(serverWithVariables, { environment: "qa" });
+    const resolved = resolveServerUrl(serverWithVariables, {
+      environment: "qa",
+    });
     expect(resolved).toBe("https://qa.api.example.com");
   });
 
@@ -55,7 +57,11 @@ describe("serverResolver", () => {
   });
 
   it("uses custom override when provided", () => {
-    const url = buildRequestUrl("https://api.example.com", "/users", "https://custom.example.com");
+    const url = buildRequestUrl(
+      "https://api.example.com",
+      "/users",
+      "https://custom.example.com",
+    );
     expect(url).toBe("https://custom.example.com/users");
   });
 
@@ -72,7 +78,11 @@ describe("serverResolver", () => {
   });
 
   it("returns effective server URL considering custom override", () => {
-    const url = getEffectiveServerUrl(basicServer, {}, "https://override.example.com");
+    const url = getEffectiveServerUrl(
+      basicServer,
+      {},
+      "https://override.example.com",
+    );
     expect(url).toBe("https://override.example.com");
   });
 
@@ -82,7 +92,9 @@ describe("serverResolver", () => {
   });
 
   it("validates server variables are satisfied", () => {
-    const valid = areServerVariablesValid(serverWithVariables, { environment: "dev" });
+    const valid = areServerVariablesValid(serverWithVariables, {
+      environment: "dev",
+    });
     expect(valid).toBe(true);
   });
 
@@ -110,7 +122,7 @@ describe("serverResolver", () => {
   it("returns default as option when no enum", () => {
     const variable = {
       name: "test",
-      default: "value"
+      default: "value",
     };
     const options = getServerVariableOptions(variable);
     expect(options).toEqual(["value"]);
@@ -120,12 +132,23 @@ describe("serverResolver", () => {
     const multiVarServer: OpenApiServer = {
       url: "https://{region}.{environment}.api.example.com",
       variables: {
-        region: { name: "region", default: "us-east", enum: ["us-east", "us-west", "eu"] },
-        environment: { name: "environment", default: "prod", enum: ["dev", "staging", "prod"] }
-      }
+        region: {
+          name: "region",
+          default: "us-east",
+          enum: ["us-east", "us-west", "eu"],
+        },
+        environment: {
+          name: "environment",
+          default: "prod",
+          enum: ["dev", "staging", "prod"],
+        },
+      },
     };
 
-    const resolved = resolveServerUrl(multiVarServer, { region: "eu", environment: "staging" });
+    const resolved = resolveServerUrl(multiVarServer, {
+      region: "eu",
+      environment: "staging",
+    });
     expect(resolved).toBe("https://eu.staging.api.example.com");
   });
 });

@@ -24,32 +24,49 @@ export const useOpenApiStore = create<OpenApiState>((set, get) => ({
       services,
       selectedServiceId: null,
       selectedVersionId: null,
-      selectedEndpointId: null
+      selectedEndpointId: null,
     });
   },
-  clearSelection: () => set({ selectedServiceId: null, selectedVersionId: null, selectedEndpointId: null }),
+  clearSelection: () =>
+    set({
+      selectedServiceId: null,
+      selectedVersionId: null,
+      selectedEndpointId: null,
+    }),
   selectVersion: (selectedVersionId) => {
-    const version = get().services.flatMap((service) => service.versions).find((item) => item.id === selectedVersionId);
+    const version = get()
+      .services.flatMap((service) => service.versions)
+      .find((item) => item.id === selectedVersionId);
     set({
       selectedServiceId: version?.serviceId ?? null,
       selectedVersionId,
-      selectedEndpointId: version?.endpoints[0]?.id ?? null
+      selectedEndpointId: version?.endpoints[0]?.id ?? null,
     });
   },
   selectEndpoint: (selectedEndpointId) => {
-    const endpoint = get().services.flatMap((service) => service.endpoints).find((item) => item.id === selectedEndpointId);
+    const endpoint = get()
+      .services.flatMap((service) => service.endpoints)
+      .find((item) => item.id === selectedEndpointId);
     set({
       selectedEndpointId,
       selectedServiceId: endpoint?.serviceId ?? get().selectedServiceId,
-      selectedVersionId: endpoint?.versionId ?? get().selectedVersionId
+      selectedVersionId: endpoint?.versionId ?? get().selectedVersionId,
     });
   },
   selectedVersion: () => {
     const { services, selectedVersionId } = get();
-    return services.flatMap((service) => service.versions).find((version) => version.id === selectedVersionId) ?? null;
+    return (
+      services
+        .flatMap((service) => service.versions)
+        .find((version) => version.id === selectedVersionId) ?? null
+    );
   },
   selectedEndpoint: () => {
     const { services, selectedEndpointId } = get();
-    return services.flatMap((service) => service.endpoints).find((endpoint) => endpoint.id === selectedEndpointId) ?? null;
-  }
+    return (
+      services
+        .flatMap((service) => service.endpoints)
+        .find((endpoint) => endpoint.id === selectedEndpointId) ?? null
+    );
+  },
 }));

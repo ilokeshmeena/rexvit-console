@@ -1,4 +1,8 @@
-import type { RequestRunner, ResponseRenderer, SpecImporter } from "./contracts";
+import type {
+  RequestRunner,
+  ResponseRenderer,
+  SpecImporter,
+} from "./contracts";
 
 export type PluginRegistry = {
   specImporters: SpecImporter[];
@@ -9,7 +13,7 @@ export type PluginRegistry = {
 export const pluginRegistry: PluginRegistry = {
   specImporters: [],
   requestRunners: [],
-  responseRenderers: []
+  responseRenderers: [],
 };
 
 export function registerPlugin(plugin: Partial<PluginRegistry>) {
@@ -17,4 +21,3 @@ export function registerPlugin(plugin: Partial<PluginRegistry>) {
   pluginRegistry.requestRunners.push(...(plugin.requestRunners ?? []));
   pluginRegistry.responseRenderers.push(...(plugin.responseRenderers ?? []));
 }
-

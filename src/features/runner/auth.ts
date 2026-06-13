@@ -1,7 +1,11 @@
 import type { ApiRequest, HeaderPair } from "../../shared/types/http";
 import type { AuthProfile } from "../../shared/types/persistence";
 
-export async function applyAuthProfile(request: ApiRequest, profile: AuthProfile | null, getSecret: (secretRef: string) => Promise<string>): Promise<ApiRequest> {
+export async function applyAuthProfile(
+  request: ApiRequest,
+  profile: AuthProfile | null,
+  getSecret: (secretRef: string) => Promise<string>,
+): Promise<ApiRequest> {
   if (!profile?.enabled) return request;
 
   const headers = [...request.headers];
@@ -15,7 +19,12 @@ export async function applyAuthProfile(request: ApiRequest, profile: AuthProfile
   if (profile.type === "apiKey") {
     const key = profile.config.headerName || "X-API-Key";
     if (profile.config.apiKeyLocation === "query") {
-      queryParams.push({ id: crypto.randomUUID(), key, value: secret, enabled: true });
+      queryParams.push({
+        id: crypto.randomUUID(),
+        key,
+        value: secret,
+        enabled: true,
+      });
     } else {
       upsertHeader(headers, key, secret);
     }
@@ -37,7 +46,9 @@ export async function applyAuthProfile(request: ApiRequest, profile: AuthProfile
 }
 
 function upsertHeader(headers: HeaderPair[], key: string, value: string) {
-  const existing = headers.find((header) => header.key.toLowerCase() === key.toLowerCase());
+  const existing = headers.find(
+    (header) => header.key.toLowerCase() === key.toLowerCase(),
+  );
   if (existing) {
     existing.value = value;
     existing.enabled = true;

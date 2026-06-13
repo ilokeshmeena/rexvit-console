@@ -26,4 +26,3 @@ pnpm typecheck
 ```
 
 Rust and the Tauri prerequisites are required for native desktop builds.
-
