@@ -1,83 +1,75 @@
 name: Build and Release
 
 on:
-push:
-tags:
-- "v*"
+  push:
+    tags:
+      - 'v*'
 
 permissions:
-contents: write
+  contents: write
 
 jobs:
-build:
-strategy:
-fail-fast: false
-matrix:
-include:
-- platform: macos-latest
-args: ""
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - macos-latest
+          - ubuntu-22.04
+          - windows-latest
 
-```
-      - platform: ubuntu-22.04
-        args: ""
+    runs-on: ${{ matrix.platform }}
 
-      - platform: windows-latest
-        args: ""
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-runs-on: ${{ matrix.platform }}
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-steps:
-  - name: Checkout
-    uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
 
-  - name: Setup Node
-    uses: actions/setup-node@v4
-    with:
-      node-version: 22
+      - name: Install Linux Dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
 
-  - name: Install Rust
-    uses: dtolnay/rust-toolchain@stable
+      - name: Install Dependencies
+        run: npm install
 
-  - name: Install Linux Dependencies
-    if: matrix.platform == 'ubuntu-22.04'
-    run: |
-      sudo apt update
-      sudo apt install -y \
-        libwebkit2gtk-4.1-dev \
-        build-essential \
-        curl \
-        wget \
-        file \
-        libxdo-dev \
-        libssl-dev \
-        libayatana-appindicator3-dev \
-        librsvg2-dev
+      - name: Build App
+        run: npm run tauri build
 
-  - name: Install Dependencies
-    run: npm install
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}
+          path: src-tauri/target/release/bundle/
 
-  - name: Build Tauri App
-    run: npm run tauri build
+  release:
+    needs: build
+    runs-on: ubuntu-latest
 
-  - name: Upload Artifacts
-    uses: actions/upload-artifact@v4
-    with:
-      name: ${{ matrix.platform }}
-      path: src-tauri/target/release/bundle/
-```
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
 
-release:
-needs: build
-
-```
-runs-on: ubuntu-latest
-
-steps:
-  - uses: actions/download-artifact@v4
-    with:
-      path: release-artifacts
-
-  - uses: softprops/action-gh-release@v2
-    with:
-      files: release-artifacts/**/*
-```
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-artifacts/**/*
