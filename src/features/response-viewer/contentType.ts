@@ -46,6 +46,73 @@ export function resolveResponseContent(
 ): ResponseContentResolution {
   const normalized = contentType.toLowerCase().split(";")[0].trim();
 
+  if (normalized === "application/json" || normalized.endsWith("+json")) {
+    return resolution(normalized, "json", "JSON Viewer", "json", true);
+  }
+
+  if (
+    normalized === "application/xml" ||
+    normalized === "text/xml" ||
+    normalized.endsWith("+xml")
+  ) {
+    return resolution(normalized, "text", "XML Viewer", "xml", true);
+  }
+
+  if (normalized === "text/html") {
+    return resolution(normalized, "html", "HTML Preview", "html", true);
+  }
+
+  if (normalized.startsWith("image/")) {
+    const ext = normalized.split("/")[1] ?? "img";
+    return resolution(normalized, "image", "Image Preview", ext, true);
+  }
+
+  if (normalized.startsWith("video/")) {
+    const ext = normalized.split("/")[1] ?? "mp4";
+    return resolution(normalized, "video", "Video Player", ext, true);
+  }
+
+  if (normalized.startsWith("audio/")) {
+    const ext = normalized.split("/")[1] ?? "mp3";
+    return resolution(normalized, "audio", "Audio Player", ext, true);
+  }
+
+  if (normalized === "application/pdf") {
+    return resolution(normalized, "pdf", "PDF Viewer", "pdf", true);
+  }
+
+  if (normalized.startsWith("text/")) {
+    const ext = normalized.split("/")[1] ?? "txt";
+    return resolution(normalized, "text", "Text Viewer", ext, true);
+  }
+
+  return resolution(
+    normalized || "application/octet-stream",
+    "download",
+    "Download",
+    guessExtension(normalized),
+    true,
+  );
+}
+function guessExtension(contentType: string): string {
+  const map: Record<string, string> = {
+    "application/zip": "zip",
+    "application/gzip": "gz",
+    "application/x-tar": "tar",
+    "application/vnd.ms-excel": "xls",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+    "application/msword": "doc",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+      "docx",
+  };
+
+  return map[contentType] ?? "bin";
+}
+export function resolveResponseContent1(
+  contentType: string,
+): ResponseContentResolution {
+  const normalized = contentType.toLowerCase().split(";")[0].trim();
+
   if (normalized === "application/json" || normalized.endsWith("+json"))
     return resolution(normalized, "json", "JSON Viewer", "json", true);
   if (normalized === "text/plain")

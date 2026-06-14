@@ -1,6 +1,7 @@
 import { invokeCommand } from "../../services/tauriClient";
 import type { ApiResponse } from "../../shared/types/http";
 import type { ResponseContentResolution } from "./contentType";
+import { isTauri } from "@tauri-apps/api/core";
 
 export async function downloadResponse(
   response: ApiResponse,
@@ -9,19 +10,34 @@ export async function downloadResponse(
   const fileName = `rexvit-response.${resolution.extension}`;
   const body = response.body ?? "";
 
-  if ("__TAURI_INTERNALS__" in window) {
+  if (isTauri()) {
     const { save } = await import("@tauri-apps/plugin-dialog");
+
     const path = await save({
       title: "Save response",
       defaultPath: fileName,
-      filters: [{ name: resolution.label, extensions: [resolution.extension] }],
+      filters: [
+        {
+          name: resolution.label,
+          extensions: [resolution.extension],
+        },
+      ],
     });
+
     if (!path) return;
-    await invokeCommand("save_response_body", {
-      path,
-      body,
-      bodyEncoding: response.bodyEncoding,
-    });
+
+    try {
+      await invokeCommand("save_response_body", {
+        path,
+        body,
+        bodyEncoding: response.bodyEncoding,
+      });
+
+      console.log("Saved successfully");
+    } catch (error) {
+      console.error("Save failed", error);
+    }
+
     return;
   }
 
