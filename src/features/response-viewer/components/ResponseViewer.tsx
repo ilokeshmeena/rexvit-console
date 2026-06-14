@@ -68,7 +68,8 @@ export function ResponseViewer() {
 
   return (
     <section className={shellClassName}>
-      <div className="flex min-h-11 flex-wrap items-center gap-2 border-b border-border px-3 py-2">
+      <div className="sticky top-0 z-10 flex min-h-11 flex-wrap items-center gap-2 border-b border-border bg-panel/95 px-3 py-2 backdrop-blur">
+        {" "}
         <h2 className="text-sm font-semibold">Response</h2>
         <Metric
           tone={
