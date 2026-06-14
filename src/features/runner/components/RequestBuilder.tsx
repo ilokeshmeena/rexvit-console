@@ -436,7 +436,8 @@ export function RequestBuilder() {
 
   return (
     <section className="flex h-full min-h-0 flex-col bg-background">
-      <div className="flex h-9 shrink-0 items-center gap-1 overflow-x-auto border-b border-border bg-surface px-2">
+      <div className="flex h-10 shrink-0 items-center gap-1 overflow-x-auto border-b border-border bg-surface/80 px-2 backdrop-blur">
+        {" "}
         {openTabs.map((tab) => {
           const draft = requests.find(
             (item) => item.requestId === tab.requestId,
@@ -448,7 +449,7 @@ export function RequestBuilder() {
               className={[
                 "focus-ring flex h-7 max-w-56 shrink-0 items-center gap-1 rounded px-2 text-xs transition-colors",
                 activeRequestId === tab.requestId
-                  ? "bg-panel text-foreground"
+                  ? "border border-accent/20 bg-accent/10 text-foreground"
                   : "text-muted hover:bg-white/5 hover:text-foreground",
               ].join(" ")}
               onClick={() => focusTab(tab.requestId)}
@@ -511,7 +512,7 @@ export function RequestBuilder() {
         </div>
       </div>
       <div className="min-h-0 flex-1 overflow-auto p-3 pb-24">
-        <div
+        {/* <div
           className={
             isOpenApiMode
               ? "grid grid-cols-[108px_minmax(160px,240px)_1fr] gap-2"
@@ -545,8 +546,65 @@ export function RequestBuilder() {
             placeholder="Request URL"
             readOnly={isOpenApiMode}
           />
-        </div>
+        </div> */}
 
+        <div
+          className={
+            isOpenApiMode
+              ? "grid grid-cols-[110px_220px_1fr_auto] gap-2"
+              : "grid grid-cols-[110px_1fr_auto] gap-2"
+          }
+        >
+          <Select
+            aria-label="HTTP method"
+            value={request.method}
+            onChange={(event) =>
+              patchRequest({
+                method: event.target.value as HttpMethod,
+              })
+            }
+          >
+            {METHODS.map((method) => (
+              <option key={method}>{method}</option>
+            ))}
+          </Select>
+
+          {isOpenApiMode && (
+            <ServerSelector
+              servers={selectedVersion?.servers}
+              selection={serverSelection}
+              onServerChange={(updates) =>
+                setServerSelection({
+                  ...serverSelection,
+                  ...updates,
+                })
+              }
+            />
+          )}
+
+          <Input
+            value={request.url}
+            onChange={(event) =>
+              patchRequest({
+                url: event.target.value,
+              })
+            }
+            aria-label="Request URL"
+            placeholder="Request URL"
+            readOnly={isOpenApiMode}
+          />
+
+          <Button
+            size="md"
+            onClick={run}
+            disabled={isRunning}
+            className="min-w-[120px]"
+          >
+            <Play className="h-4 w-4" />
+
+            {isRunning ? "Sending..." : "Send"}
+          </Button>
+        </div>
         <section className="mt-3 rounded-md border border-border bg-surface">
           <div className="overflow-x-auto border-b border-border p-2">
             <Tabs<RequestTab>
@@ -676,7 +734,7 @@ export function RequestBuilder() {
           </div>
         </section>
       </div>
-      <div className="sticky bottom-0 z-10 border-t border-border bg-surface/95 p-3 backdrop-blur">
+      {/* <div className="sticky bottom-0 z-10 border-t border-border bg-surface/95 p-3 backdrop-blur">
         <div className="grid gap-2 lg:grid-cols-[1fr_auto] lg:items-center">
           <div className="min-w-0 text-xs">
             <div className="flex flex-wrap items-center gap-2">
@@ -704,7 +762,7 @@ export function RequestBuilder() {
             {isRunning ? "Sending" : "Send"}
           </Button>
         </div>
-      </div>
+      </div> */}
     </section>
   );
 }
